@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import androidx.ui.tooling.preview.Preview
 import com.example.composetesting.R
 import com.example.composetesting.models.InterviewsViewModel
@@ -28,19 +31,19 @@ import com.example.composetesting.models.formatTimeRange
 import com.example.composetesting.models.getDaysAgo
 
 @Composable
-fun InterviewDetailActivity(meetingId: String, viewModel: InterviewsViewModel, onBack: () -> Unit) {
+fun InterviewDetailActivity(meetingId: String, viewModel: InterviewsViewModel, navController: NavController) {
     val meeting = viewModel.futureMeetings.value?.firstOrNull{it.id == meetingId} ?: return
-    InterviewDetail(meeting = meeting, onBack = onBack)
+    InterviewDetail(meeting = meeting, navController = navController)
 }
 
 @Composable
-fun InterviewDetail(meeting: Meeting, onBack: () -> Unit) {
+fun InterviewDetail(meeting: Meeting, navController: NavController) {
     val Ximage = imageResource(id = R.drawable.avatar)
     val imageModifier = Modifier
         .preferredHeight(16.dp)
         .preferredWidth(16.dp)
         .padding(10.dp)
-        .clickable(onClick = onBack)
+        .clickable(onClick = navController::navigateUp)
     Surface(color = MaterialTheme.colors.background) {
         Column(Modifier.padding(24.dp)) {
             Image(
@@ -88,6 +91,7 @@ fun InterviewCancelView(isComplete: Boolean, rangeString: String) {
 @Preview
 @Composable
 fun DetailPreview() {
+    val navController = rememberNavController()
     val meeting = Meeting("0",
         getDaysAgo(7), getDaysAgo(5),
         "1 on 1 with Airbnb",
@@ -95,6 +99,6 @@ fun DetailPreview() {
         "1 on 1 Quick Screen",
         "Airbnb", null )
 
-    InterviewDetail(meeting = meeting) {}
+    InterviewDetail(meeting = meeting, navController = navController)
 }
 

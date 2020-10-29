@@ -44,6 +44,8 @@ android {
 }
 
 dependencies {
+    def nav_version = "2.3.1"
+    api "androidx.navigation:navigation-fragment-ktx:$nav_version"
 
     def nav_compose_version = "1.0.0-alpha01"
     implementation "androidx.navigation:navigation-compose:$nav_compose_version"
