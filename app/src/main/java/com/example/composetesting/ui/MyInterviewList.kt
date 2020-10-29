@@ -1,7 +1,6 @@
 package com.example.composetesting.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -46,37 +45,42 @@ fun MyInterviewsActivity(viewModel: InterviewsViewModel, navigateTo: (Screen) ->
     }
 }
 
+sealed class MyInterviewItem
+data class MyHeader(val title: String): MyInterviewItem()
+data class MyCard(val meeting: Meeting): MyInterviewItem()
+
 @Composable
 fun MyInterviewsActivityList(viewModel: InterviewsViewModel, navigateTo: (Screen) -> Unit) {
     val items: List<Meeting> by viewModel.futureMeetings.observeAsState(listOf())
     val pastItems: List<Meeting> by viewModel.pastMeetings.observeAsState(listOf())
 
+    val presentCards = items.map { MyCard(it) }
+    val headerItem = MyHeader("Past Sessions")
+    val pastCards = pastItems.map { MyCard(it) }
+    val listItems: List<MyInterviewItem> = presentCards + headerItem + pastCards
     MyInterviewsList(
-        futureMeetings = items,
-        pastMeetings = pastItems,
+        listItems = listItems,
         navigateTo = navigateTo
     )
 }
 
 @Composable
-fun MyInterviewsList(futureMeetings: List<Meeting>, pastMeetings: List<Meeting>, navigateTo: (Screen) -> Unit) {
-    ScrollableColumn {
-        Spacer(modifier = Modifier.preferredHeight(16.dp))
-
-        LazyColumnFor(futureMeetings) { item ->
-            MyInterviewsCell(item, navigateTo = navigateTo)
-            // Takes care of the space between items
-            Spacer(modifier = Modifier.preferredHeight(16.dp))
-        }
-        Text(
-            text = "Past Sessions",
-            style = typography.h5,
-            modifier = Modifier.padding(24.dp, 40.dp)
-        )
-        LazyColumnFor(pastMeetings) { item ->
-            MyInterviewsCell(item, navigateTo = navigateTo)
-            // Takes care of the space between items
-            Spacer(modifier = Modifier.preferredHeight(16.dp))
+fun MyInterviewsList(listItems: List<MyInterviewItem>, navigateTo: (Screen) -> Unit) {
+    Spacer(modifier = Modifier.preferredHeight(16.dp))
+    LazyColumnFor(listItems) { item ->
+        when (item) {
+            is MyCard -> {
+                MyInterviewsCell(item.meeting, navigateTo = navigateTo)
+                // Takes care of the space between items
+                Spacer(modifier = Modifier.preferredHeight(16.dp))
+            }
+            is MyHeader -> {
+                Text(
+                    text = item.title,
+                    style = typography.h5,
+                    modifier = Modifier.padding(24.dp, 40.dp)
+                )
+            }
         }
     }
 }
